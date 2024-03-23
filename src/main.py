@@ -1,20 +1,11 @@
 import time
-import datetime
 import sys
 import gpiod
 from filelock import FileLock
 import schedule
-from schedule import repeat, every
 import threading
-from .audio.audio import Sounds
-from .config import get_times
-from .lib import play, display_image
-from .gpio import Button, Buttons, Leds, Speed
-from . import (
-    capture_bracketed,
-    capture_continuous,
-    capture_manual_bracketed,
-)
+from .gpio import Buttons, Leds, Speed, wait_for_button_press
+from . import Functions
 
 """
 Example Base Setting choices:
@@ -147,61 +138,7 @@ def startup(gpio):
     time.sleep(0.4)
     Leds.GREEN_LED.stop_flicker()
 
-    Leds.GREEN_LED.turn_on(gpio)
-    Leds.YELLOW_LED.turn_off(gpio)
-    Leds.RED_LED.turn_off(gpio)
-
-
-def wait_for_button_press(btn: Button):
-    while True:
-        if not btn.press_event.is_set() and btn.is_pressed():
-            print(btn.name)
-
-            group_busy = False
-            for b in BUTTONS:
-                if b is btn:
-                    continue
-
-                group_match = b.group is btn.group
-
-                if b.press_event.is_set() and group_match:
-                    group_busy = True
-                    break
-
-            if not group_busy and btn.is_pressed():
-                btn.handle_press()
-            elif group_busy:
-                Logger.warning(f"{btn.group} is busy...")
-            else:
-                print("Waiting for command...")
-        time.sleep(POLL_INTERVAL)
-
-
-def main(mode):
-    times = get_times("production" if mode == "production" else "development")
-
-    def test():
-        display_image("/home/stephen/stephenskywatcher/eclipse.jpg")
-        # play([Sounds.WELCOME_ECLIPSE])
-
-    # play(
-    #     [
-    #         Sounds.TOTALITY,
-    #         Sounds.BEGINS_IN,
-    #         Sounds.T_MINUS,
-    #         Sounds.TEN,
-    #         Sounds.SECONDS,
-    #         Sounds.COUNTDOWN_AMELIA,
-    #     ]
-    # )
-    #
-
-    now = datetime.datetime.now()
-    t = 8
-    jt = now + datetime.timedelta(0, t)
-    print(jt)
-    schedule.every().day.at(jt.strftime("%H:%M:%S")).do(test).tag("C1")
-
+def main():
     with (
         FileLock(LOCK_FILE) as Lock,
         gpiod.request_lines(
@@ -213,37 +150,22 @@ def main(mode):
         startup(gpio)
         gpio_off(gpio)
 
-        def test2():
-            VibratingMotors.MAIN.flicker(gpio, Speed.VERY_FAST)
-            time.sleep(0.5)
-            VibratingMotors.MAIN.turn_off(gpio)
+        f = Functions(gpio, Leds)
+        Buttons.GREEN_BTN.onpress = lambda: f.bracketed()
+        Buttons.YELLOW_BTN.onpress = lambda: f.continuous()
+        Buttons.BLUE_BTN.onpress = lambda: f.manual_bracketed()
+        Buttons.RED_BTN.onpress = lambda: f.manual_bracketed()
+        Buttons.LEFT_BUTTON.onpress = lambda: f.download_latest()
 
-        Buttons.GREEN_BTN.onpress = lambda: capture_bracketed(
-            Leds, gpio
-        )  # capture_bracketed,
-        Buttons.YELLOW_BTN.onpress = lambda: capture_continuous(
-            Leds, gpio
-        )  # capture_bracketed,
-        Buttons.BLUE_BTN.onpress = lambda: capture_manual_bracketed(
-            Leds, gpio
-        )  # capture_bracketed,
-        Buttons.RED_BTN.onpress = lambda: capture_bracketed(Leds, gpio)
-        #
-        Buttons.LEFT_BUTTON.onpress = test2
-        # TODO: There must be a better built-in gpiod way
-        #       to handle this, instead of a single thread for each?
-        #       - if so, is it worth it?
         for b in BUTTONS:
             b.gpio = gpio
-            b.thread = threading.Thread(target=wait_for_button_press, args=(b,))
+            b.thread = threading.Thread(target=wait_for_button_press, args=(b,BUTTONS,))
             b.thread.daemon = True
             b.thread.start()
 
         try:
             while True:
-                # How can I not have this....
                 # TODO: Scheduler: print current time, next event countdown, etc...
-
                 schedule.run_pending()
                 time.sleep(1)
         except KeyboardInterrupt:
@@ -259,6 +181,17 @@ def main(mode):
             Logger.warning("goodbye")
 
 
-mode = sys.argv[1] if len(sys.argv) == 2 else "development"
+# mode = sys.argv[1] if len(sys.argv) == 2 else "development"
+main()
 
-main(mode)
+"""
+times = get_times("production" if mode == "production" else "development")
+def test():
+print('test')
+display_image("/home/stephen/stephenskywatcher/eclipse.jpg")
+
+now = datetime.datetime.now()
+t = 8
+jt = now + datetime.timedelta(0, t)
+schedule.every().day.at(jt.strftime("%H:%M:%S")).do(test).tag("C1")
+"""

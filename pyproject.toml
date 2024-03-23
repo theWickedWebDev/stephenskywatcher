@@ -26,6 +26,8 @@ zc = "^0.1.1"
 filelock = "^3.13.3"
 opencv-python = "^4.9.0.80"
 screeninfo = "^0.8.1"
+imageio = "^2.34.0"
+rawpy = "^0.19.1"
 
 [build-system]
 requires = ["poetry-core"]

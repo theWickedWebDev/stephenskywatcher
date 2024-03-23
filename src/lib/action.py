@@ -52,6 +52,28 @@ class Action:
         if preset:
             self.shoot.camera.set_preset(preset)
 
+
+    def get_last_photos(self, count=1):  # configs: List[(Config, Enum)]
+        try:
+            self.log.action('[DOWNLOAD]', f'Last {count} photo(s)')
+            cmd = [
+                f"--folder={CANON_FOLDER}",
+                "--num-files",
+            ]
+
+            r = gp(cmd)
+            num_files = r.split(': ')[1].strip()
+            num_files_int = int(num_files)
+            start_range = num_files_int - count
+            end_range = num_files_int
+            print(f"Downloading {count} of {num_files}")
+            exec_in_dir(self.dir, gp, [
+                f"--folder={CANON_FOLDER}",
+                f"--get-file={start_range}-{end_range}"
+            ])
+        except Exception as e:
+            self.log.error("Error downloading photos", e)
+
     def download_and_delete(self):
         dlcmd = [
             "--filename",

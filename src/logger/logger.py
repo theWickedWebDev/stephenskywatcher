@@ -119,7 +119,7 @@ class Logger(logging.Logger):
         super().warning(colored_message, *args, **kwargs)
 
     def cmd_error(self, cmd, msg, *args, **kwargs):
-        colored_message = f"{fg.RED}[GPHOTO2 ERROR]{fg.RESET} {' '.join(cmd)} {style.DIM}\n{msg}{style.RESET_ALL}"
+        colored_message = f"{fg.RED}[CMD ERROR]{fg.RESET} {' '.join(cmd)} {style.DIM}\n{msg}{style.RESET_ALL}"
         super().error(colored_message, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):

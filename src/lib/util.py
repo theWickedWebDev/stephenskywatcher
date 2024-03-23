@@ -1,6 +1,8 @@
 import os
 import subprocess
 import datetime
+
+from src.util import killgphoto2Process
 from ..logger import Logger as _Logger
 
 Logger = _Logger(__name__)
@@ -20,10 +22,14 @@ def gp_proc(cmd):
         )
         stdout, stderr = p.communicate()
         if stderr:
-            Logger.cmd_error(cmd, stderr.decode())
-            raise Exception(stderr)
+            err =  stderr.decode()
+            Logger.error('GP_PROC', err)
         return stdout
-    except:
+    except Exception as e:
+        if stderr:
+            err =  e.decode()
+            Logger.error('GP_PROC', err)
+            
         pass
 
 

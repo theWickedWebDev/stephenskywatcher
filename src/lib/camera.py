@@ -95,11 +95,12 @@ class Camera:
             if "No camera found" in e.stderr.decode():
                 self.log.error("NO CAMERA")
                 self.log.debug(e.stderr.decode())
-            if "Could not claim the USB device" in e.stderr.decode():
+            elif "Could not claim the USB device" in e.stderr.decode():
                 self.log.warn("Attempting to reset gphoto")
                 killgphoto2Process()
                 self.set_preset(preset)
-            self.log.error("Error setting Camera Preset")
+            else:
+                self.log.error("Error setting Camera Preset")
 
     def delete_all(self):
         try:
