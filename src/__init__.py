@@ -1,2 +1,1 @@
-from .functions import Functions
-from .util import killgphoto2Process
+from .main import main

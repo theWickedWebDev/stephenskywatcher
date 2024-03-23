@@ -55,11 +55,6 @@ class Logger(logging.Logger):
         colored_message = f"{msg}"
         super().debug(colored_message, *args, **kwargs)
 
-    def remaining(self, msg, *args, **kwargs):
-        remain = "{}".format(str(timedelta(seconds=msg)))
-        colored_message = f"{fg.BLUE}[Seconds until next event] {fg.MAGENTA}{remain}{fg.RESET} {style.DIM}{style.RESET_ALL}"
-        super().info(colored_message, *args, **kwargs)
-
     def time(self, *args, **kwargs):
         super().debug(datetime.now().strftime("%H:%M:%S"), *args, **kwargs)
 
@@ -74,19 +69,9 @@ class Logger(logging.Logger):
         super().info(colored_message, *args, **kwargs)
         pprint_color(c.options())
 
-    def set_config(self, name, val, *args, **kwargs):
-        colored_message = f"    {style.DIM}Set:{style.RESET_ALL} {fg.CYAN}{name}{bg.RESET}{style.RESET_ALL} = {style.BRIGHT}{fg.CYAN}{val} {style.RESET_ALL}{fg.RESET}{style.RESET_ALL}"
-        super().info(colored_message, *args, **kwargs)
-
     def action(self, name, msg, *args, **kwargs):
         colored_message = (
             f"{fg.GREEN}[{name}]{fg.RESET} {fg.WHITE}{msg}{style.RESET_ALL}"
-        )
-        super().info(colored_message, *args, **kwargs)
-
-    def detail(self, name, msg, *args, **kwargs):
-        colored_message = (
-            f"{fg.BLUE}[{name}]{fg.RESET} {style.DIM}{msg}{style.RESET_ALL}"
         )
         super().info(colored_message, *args, **kwargs)
 
@@ -94,12 +79,6 @@ class Logger(logging.Logger):
         time = datetime.now().strftime(TIME_FORMAT)
         fileName, lineno = self.inspector()
         colored_message = f"{time} {fg.GREEN}[INFO] {msg}{fg.RESET} {style.DIM}{fileName}#{lineno}{style.RESET_ALL}"
-        super().info(colored_message, *args, **kwargs)
-
-    def complete(self, msg, *args, **kwargs):
-        time = datetime.now().strftime(TIME_FORMAT)
-        fileName, lineno = self.inspector()
-        colored_message = f"{time} {fg.BLUE}[COMPLETED] {msg}{fg.RESET} {style.DIM}{fileName}#{lineno}{style.RESET_ALL}"
         super().info(colored_message, *args, **kwargs)
 
     def json(self, msg, *args, **kwargs):
@@ -117,10 +96,6 @@ class Logger(logging.Logger):
             f"{fg.YELLOW}[WARN]{fg.RESET} {time} {fg.YELLOW}{msg}{fg.RESET}"
         )
         super().warning(colored_message, *args, **kwargs)
-
-    def cmd_error(self, cmd, msg, *args, **kwargs):
-        colored_message = f"{fg.RED}[CMD ERROR]{fg.RESET} {' '.join(cmd)} {style.DIM}\n{msg}{style.RESET_ALL}"
-        super().error(colored_message, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         time = datetime.now().strftime(TIME_FORMAT)
