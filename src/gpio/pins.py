@@ -1,0 +1,34 @@
+from enum import IntEnum, verify, UNIQUE
+
+GPIO_12 = 12
+GPIO_20 = 20
+GPIO_16 = 16
+GPIO_21 = 21
+GPIO_25 = 25
+GPIO_23 = 23
+GPIO_24 = 24
+
+GPIO_26 = 26
+GPIO_19 = 19
+GPIO_13 = 13
+
+# GPIO_6 = 6
+# GPIO_5 = 5
+# GPIO_17 = 17
+# GPIO_4 = 4
+# GPIO_18 = 18
+
+
+@verify(UNIQUE)
+class Pins(IntEnum):
+    GREEN_BUTTON = GPIO_21
+    YELLOW_BUTTON = GPIO_20
+    BLUE_BUTTON = GPIO_16
+    RED_BUTTON = GPIO_12
+    LEFT_BUTTON = GPIO_25
+    RIGHT_BUTTON = GPIO_23
+    RESET_BUTTON = GPIO_24
+
+    YELLOW_LED = GPIO_26
+    GREEN_LED = GPIO_19
+    RED_LED = GPIO_13

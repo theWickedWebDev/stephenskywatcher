@@ -1,0 +1,21 @@
+Script started on 2024-03-27 14:56:13-04:00 [COMMAND="/home/stephen/.cache/pypoetry/virtualenvs/eclipse-py-xVP50Mys-py3.11/bin/python -m src.main" TERM="xterm-256color" TTY="/dev/pts/10" COLUMNS="-1" LINES="-1"]
+welcome
+[32m[Bracketed][39m [37mTriggered[0m
+[34m[Initialized Camera][39m [2mCanon EOS Rebel T8i // EF-S18-55mm f/3.5-5.6 IS II[0m
+[32m[Bracketed Capture][39m [37m3 frames, every 1s = Total: 3[0m
+[32m[Camera Preset set][39m [37mC1[0m
+    [2mSet:[0m [36mcapturetarget[49m[0m = [1m[36mMemory card [0m[39m[0m
+    [2mSet:[0m [36mimageformat[49m[0m = [1m[36mRAW [0m[39m[0m
+    [2mSet:[0m [36mautoexposuremode[49m[0m = [1m[36mManual [0m[39m[0m
+    [2mSet:[0m [36miso[49m[0m = [1m[36m100 [0m[39m[0m
+    [2mSet:[0m [36maperture[49m[0m = [1m[36m8 [0m[39m[0m
+    [2mSet:[0m [36mshutterspeed[49m[0m = [1m[36m1/3200 [0m[39m[0m
+[35m[DEBUG][39m 2024-03-27 14:56:23 [2m/home/stephen/stephenskywatcher/src/lib/util.py#12[0m
+[2mMoved to: /home/stephen/stephenskywatcher/captures/total_solar_eclipse/lights[0m
+[35m[DEBUG][39m 2024-03-27 14:56:25 [2m/home/stephen/stephenskywatcher/src/lib/util.py#15[0m
+[2mMoved back to : /home/stephen/stephenskywatcher[0m
+[32m[Bracketed Capture][39m [37mDone in 2.7000 seconds[0m
+[32m[Bracketed][39m [37mCompleted[0m
+^C[33m[WARN][39m 2024-03-27 14:56:29 [33mgoodbye[39m
+
+Script done on 2024-03-27 14:56:29-04:00 [COMMAND_EXIT_CODE="0"]
