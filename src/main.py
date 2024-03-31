@@ -2,11 +2,14 @@ from typing import List
 import time
 import gpiod
 from filelock import FileLock
-
-from .logger import Logger as _Logger
-from .lib import Button, Buttons
+from .lib import Button, Buttons, Led, Leds
+from .functions import reset_all, Functions
+from .lib.logger import Logger as _Logger
+from .lib import Camera as _Camera, Shoot as _Shoot, Hooks as _Hooks, killgphoto2Process
 
 Logger = _Logger(__name__)
+
+LOCK_FILE = "/home/stephen/stephenskywatcher/startup.lock"
 
 BUTTONS: List[Button] = [
     Buttons.GREEN_BTN,
@@ -18,46 +21,66 @@ BUTTONS: List[Button] = [
     Buttons.RESET_BUTTON,
 ]
 
+LEDS: List[Led] = [Leds.GREEN_LED, Leds.RED_LED, Leds.YELLOW_LED]
+
 GPIO_CONFIG = {}
-for b in BUTTONS:
-    GPIO_CONFIG.update({b.pin: b.line_settings})
+for g in BUTTONS + LEDS:
+    GPIO_CONFIG.update({g.pin: g.line_settings})
+
 
 def main(gpio):
-    Buttons.GREEN_BTN.on_press = lambda: print('green btn')
-    Buttons.YELLOW_BTN.on_press = lambda: print('yellow btn')
-    Buttons.BLUE_BTN.on_press = lambda: print('blue btn')
-    Buttons.RED_BTN.on_press = lambda: print('red btn')
-    Buttons.LEFT_BUTTON.on_press = lambda: print('left btn')
-    Buttons.RIGHT_BUTTON.on_press = lambda: print('right btn')
+    from .welcome import welcome
+
+    welcome()
+
+    for b in BUTTONS + LEDS:
+        b.gpio = gpio
+
+    f = Functions(gpio, Leds)
+
+    # Exposure Adjustments
+    Buttons.GREEN_BTN.on_long_press = f.prev_iso
+    Buttons.YELLOW_BTN.on_long_press = f.next_iso
+    Buttons.BLUE_BTN.on_long_press = f.prev_aperture
+    Buttons.RED_BTN.on_long_press = f.next_aperture
+    Buttons.RIGHT_BUTTON.on_long_press = f.prev_shutterspeed
+    Buttons.LEFT_BUTTON.on_long_press = f.next_shutterspeed
+
+    # Captures
+    Buttons.GREEN_BTN.on_press = f.bracketed
+    Buttons.YELLOW_BTN.on_press = f.continuous
+    Buttons.BLUE_BTN.on_press = f.manual_bracketed
+    Buttons.RED_BTN.on_press = f.capture
+    Buttons.RIGHT_BUTTON.on_press = lambda: print("RIGHT_BUTTON PRESS")
+    Buttons.LEFT_BUTTON.on_press = lambda: print("LEFT_BUTTON PRESS")
+
+    # OS
+    Buttons.RESET_BUTTON.on_long_press = reset_all
+    Buttons.RESET_BUTTON.on_press = f.download_latest
+
+    for b in BUTTONS:
+        b.wait()
+
+    Leds.GREEN_LED.on()
 
     while True:
-        # TODO: Scheduler: print current time, next event countdown, etc...
-        # schedule.run_pending()
-        time.sleep(1)
+        time.sleep(7)
 
 
-try:
-    LOCK_FILE = "/home/stephen/stephenskywatcher/startup.lock"
-    with (
-        FileLock(LOCK_FILE) as Lock,
-        gpiod.request_lines(
-            "/dev/gpiochip4",
-            consumer="capture",
-            config=GPIO_CONFIG,
-        ) as gpio,
-    ):
-        main(gpio)
+def gpio_exit():
+    for b in BUTTONS:
+        b.press_event.clear()
+    for l in LEDS:
+        l.stop_flicker()
 
-except KeyboardInterrupt:
-    Lock.release()
-    gpio.release()
-    pass
-except Exception as e:
-    Logger.error(e)
-    Lock.release()
-    gpio.release()
-    pass
-finally:
-    Lock.release()
-    gpio.release()
-    Logger.warning("goodbye")
+
+killgphoto2Process()
+with (
+    FileLock(LOCK_FILE, thread_local=False) as Lock,
+    gpiod.request_lines(
+        "/dev/gpiochip4",
+        consumer="capture",
+        config=GPIO_CONFIG,
+    ) as gpio,
+):
+    main(gpio)

@@ -3,6 +3,7 @@ from gpiod.line import Direction, Edge
 
 from enum import Enum, IntEnum, verify, UNIQUE
 
+
 class Pin(IntEnum):
     GPIO_12 = 12
     GPIO_20 = 20
@@ -25,7 +26,7 @@ class Pin(IntEnum):
 
 @verify(UNIQUE)
 class Pins(IntEnum):
-    # 
+    #
     GREEN_BUTTON = Pin.GPIO_21
     YELLOW_BUTTON = Pin.GPIO_20
     BLUE_BUTTON = Pin.GPIO_16
@@ -33,22 +34,19 @@ class Pins(IntEnum):
     LEFT_BUTTON = Pin.GPIO_25
     RIGHT_BUTTON = Pin.GPIO_23
     RESET_BUTTON = Pin.GPIO_24
-    # 
+    #
     YELLOW_LED = Pin.GPIO_26
     GREEN_LED = Pin.GPIO_19
     RED_LED = Pin.GPIO_13
 
 
 class Gpio:
-    def __init__(self,
-                 name: str,
-                 pin: Pin,
-                 direction: Direction,
-                 settings: LineSettings,
-                 edge_detection: Edge
-        ):
+    def __init__(
+        self,
+        name: str,
+        pin: Pin,
+        settings: LineSettings,
+    ):
         self.name = name
         self.pin = pin
-        self.direction = direction
         self.settings = settings
-        self.edge_detection=edge_detection,
